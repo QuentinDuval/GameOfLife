@@ -51,20 +51,21 @@ computeSeq = computeUnboxedS
 step :: (Source r Bool) => World r -> WorldComput
 step world = fromFunction (extent world) cellStatus
    where
-      cellStatus = isAlive . ((world !) &&& neighCount)
-      neighCount = length . filter (==True) . neighbors world
+      cellStatus = stepCell . ((world !) &&& neighborCount)
+      neighborCount = length . filter (==True) . neighbors world
 
 
-isAlive :: (Bool, Int) -> Bool
-isAlive (_, 3) = True
-isAlive (True, n) = n == 2
+-- One step for the cell, given its status and the number of alive neighbors
+stepCell :: (Bool, Int) -> Bool
+stepCell (_, 3) = True
+stepCell (True, n) = n == 2
 
 
+-- Returns the neighbor cells values
 neighbors :: (Source r Bool) => World r -> DIM2 -> [Bool]
 neighbors world pos =
    let indexes = neighborIndexes (extent world) pos
    in P.map ((world !) . uncurry ix2) indexes
-
 
 neighborIndexes :: DIM2 -> DIM2 -> [(Int, Int)]
 neighborIndexes (Z:.w:.h) (Z:.x:.y) = filter (/= (x,y)) allNeigh
