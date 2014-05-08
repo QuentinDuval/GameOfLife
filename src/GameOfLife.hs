@@ -58,7 +58,8 @@ step world = fromFunction (extent world) cellStatus
 -- One step for the cell, given its status and the number of alive neighbors
 stepCell :: (Bool, Int) -> Bool
 stepCell (_, 3) = True
-stepCell (True, n) = n == 2
+stepCell (True, 2) = True
+stepCell _ = False
 
 
 -- Returns the neighbor cells values
