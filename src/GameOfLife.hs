@@ -51,13 +51,13 @@ computeSeq = computeUnboxedS
 step :: (Source r Bool) => World r -> WorldComput
 step world = fromFunction (extent world) cellStatus
    where
-      cellStatus = uncurry isAlive . ((world !) &&& neighCount)
+      cellStatus = isAlive . ((world !) &&& neighCount)
       neighCount = length . filter (==True) . neighbors world
 
 
-isAlive :: Bool -> Int -> Bool
-isAlive True n = n `elem` [2, 3]
-isAlive False n = n == 3
+isAlive :: (Bool, Int) -> Bool
+isAlive (_, 3) = True
+isAlive (True, n) = n == 2
 
 
 neighbors :: (Source r Bool) => World r -> DIM2 -> [Bool]

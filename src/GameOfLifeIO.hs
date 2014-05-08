@@ -14,7 +14,6 @@ import GameOfLife
 import Prelude as P
 
 
-
 -- | Read the initial GIF file
 fromGifFile :: FilePath -> IO WorldState
 fromGifFile path = do
@@ -32,7 +31,7 @@ decodeGIF arr =
    in computeS $ Repa.map isBlack (collapseColorChannel arr)
 
 
--- | Save a sequence of world to an animated GIF file
+-- | Save a sequence of world as an animated GIF file
 toGifFile :: FilePath -> [WorldState] -> IO ()
 toGifFile path worlds = do
    let images = P.map encodeToGreyScale worlds `using` parList rdeepseq
@@ -42,9 +41,10 @@ toGifFile path worlds = do
       Right sideEff -> sideEff
 
 
--- Encoding a GIF requires to have a palette.
--- Each of the R G B combination is not possible
--- Only 256 of them are available (limited choice described by the palette)
+{-
+Encoding a GIF requires to have a palette: although, GIF is able to encore each of (R,G,B) combination,
+only 256 of them are available in a given image (the limited choice is described by the palette)
+-}
 encodeToGreyScale :: WorldState -> (Palette, GifDelay, Image Pixel8)
 encodeToGreyScale world =
    let (Z:.w:.h) = extent world
