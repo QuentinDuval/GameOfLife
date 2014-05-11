@@ -2,7 +2,7 @@ name:           GameOfLife
 version:        0.1
 cabal-version:  >=1.2
 build-type:     Simple
-author:         senmenty
+author:         Quentin Duval
 
 executable GameOfLife
   hs-source-dirs:  src
