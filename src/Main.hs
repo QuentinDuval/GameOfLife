@@ -7,9 +7,6 @@ import System.Environment
 import Utils
 
 
--- 28,1 s
--- 8,6s
-
 main :: IO()
 main = do
    args <- getArgs
@@ -24,6 +21,9 @@ main = do
 runGame :: String -> String -> Int -> IO()
 runGame inputFile outputFile iterCount = do
    initWorld <- fromGifFile inputFile
-   let nthWorld = iterateN iterCount (computePar . step) initWorld
-   toGifFile outputFile nthWorld
+   let !worlds = iterateN iterCount (computePar . step) initWorld
+   toGifFile outputFile worlds
+   --let !worlds = last $ iterateN iterCount (computePar . step) initWorld
+   --toGifFile outputFile [worlds]
 
+   

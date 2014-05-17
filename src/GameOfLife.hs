@@ -12,6 +12,8 @@ import Control.Arrow
 import Control.Monad
 import Control.Monad.Identity
 import Data.Array.Repa as Repa
+import Data.Array.Repa.Stencil
+import Data.Array.Repa.Stencil.Dim2
 import Data.Maybe
 import Prelude as P
 
@@ -47,29 +49,24 @@ computeSeq :: WorldComput -> WorldState
 computeSeq = computeUnboxedS
 
 
+
 -- | Advance the world one step further
 step :: (Source r Bool) => World r -> WorldComput
-step world = fromFunction (extent world) cellStatus
+step world = Repa.map step' $
+               mapStencil2 (BoundFixed 0) gameOfLifeMask world'
    where
-      cellStatus = stepCell . ((world !) &&& neighborCount)
-      neighborCount = length . filter (==True) . neighbors world
+      {-# INLINE step' #-}
+      step' :: Int -> Bool
+      step' x = x == 3 || x == 12 || x == 13 -- Using elem makes it real slow
+      
+      {-# INLINE world' #-}
+      world' :: Array D DIM2 Int
+      world' = Repa.map (\v -> if v then 1 else 0) world
+      
+      {-# INLINE gameOfLifeMask #-}
+      gameOfLifeMask :: Stencil DIM2 Int
+      gameOfLifeMask = 
+         [stencil2| 1  1  1
+                    1 10  1
+                    1  1  1 |]
 
-
--- One step for the cell, given its status and the number of alive neighbors
-stepCell :: (Bool, Int) -> Bool
-stepCell (_, 3) = True
-stepCell (True, 2) = True
-stepCell _ = False
-
-
--- Returns the neighbor cells values
-neighbors :: (Source r Bool) => World r -> DIM2 -> [Bool]
-neighbors world pos =
-   let indexes = neighborIndexes (extent world) pos
-   in P.map ((world !) . uncurry ix2) indexes
-
-neighborIndexes :: DIM2 -> DIM2 -> [(Int, Int)]
-neighborIndexes (Z:.w:.h) (Z:.x:.y) = filter (/= (x,y)) allNeigh
-   where
-      allNeigh = [(i,j) | i <- around x w, j <- around y h]
-      around n max = filter (0 <=) . filter (< max) $ [n-1, n, n+1]
