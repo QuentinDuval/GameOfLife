@@ -49,7 +49,6 @@ computeSeq :: WorldComput -> WorldState
 computeSeq = computeUnboxedS
 
 
-
 -- | Advance the world one step further
 step :: (Source r Bool) => World r -> WorldComput
 step world = Repa.map step' $
